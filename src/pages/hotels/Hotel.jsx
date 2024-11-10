@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import './hotel.css'
 import Navbar from '../../components/navbar/Navbar'
 import Header from '../../components/header/Header'
@@ -6,33 +6,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleArrowLeft, faCircleArrowRight, faCircleXmark, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import Footer from '../../components/footer/Footer'
 import MailList from '../../components/mailList/MailList'
+import useFetch from '../../hooks/useFetch'
+import { useLocation } from 'react-router-dom'
+import { SearchContext } from '../../context/SearchContext'
 
 const Hotel = () => {
 
+    const location = useLocation()
+    const id = location.pathname.split('/')[2]
+    const { data, error, loading } = useFetch(`http://localhost:8008/api/hotels/find/${id}`)
     const [slideNumber, setSlideNumber] = useState(0)
     const [open, setOpen] = useState(false)
+    const { hotel } = data
+    console.log(hotel, "Hotel ==>");
+    console.log(data, "Hotel ==>");
 
-    const images = [
-        {
-            src: 'https://www.spectruminteriors.co.in/wp-content/uploads/2021/01/DSC04329-scaled.jpg'
-        },
-        {
-            src: 'https://colleenmcnally.com/wp-content/uploads/2019/06/living-room-and-kitchen-design.jpg'
-        },
-        {
-            src: 'https://www.redfin.com/blog/wp-content/uploads/2021/06/NYC3.jpg'
-        },
-        {
-            src: 'https://media.istockphoto.com/id/1357529184/photo/3d-render-of-a-contemporary-living-room-interior.jpg?s=612x612&w=0&k=20&c=YuMefC7wfoc6Qitx7iyjmnjFBdtb94CyuITVCDrHTB8='
-        },
-        {
-            src: 'https://media.istockphoto.com/id/1469440047/photo/modern-living-interior.jpg?s=612x612&w=0&k=20&c=ccpjQCnWvzLa4ynGgfOVaGMt_EY6bVA5-oJtRIjeTPY='
-        },
-        {
-            src: 'https://i.ytimg.com/vi/zumJJUL_ruM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDmuE3PvabgnyNZGEppImDEol7qlw'
-        }
-    ]
+    const { dates, options } = useContext(SearchContext)
+    console.log(options);
 
+    const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24
+    function dayDiff(dateOne, dateTwo) {
+        const timeDiff = Math.abs(dateTwo.getTime() - dateOne.getTime())
+        const diffDays = Math.ceil(timeDiff / MILLISECONDS_PER_DAY)
+        return diffDays;
+    }
+    const days = dayDiff(dates[0].endDate, dates[0].startDate)
     const handleOpen = (i) => {
         setSlideNumber(i)
         setOpen(true)
@@ -42,80 +40,74 @@ const Hotel = () => {
         <div>
             <Navbar />
             <Header type='list' />
-            <div className="hotelContainer">
-                {open &&
-                    <div className="slider">
-                        <FontAwesomeIcon
-                            icon={faCircleXmark}
-                            className='close'
-                            onClick={() => setOpen(false)} />
-                        <FontAwesomeIcon
-                            icon={faCircleArrowLeft}
-                            className='arrow'
-                            onClick={() => setSlideNumber(slideNumber == 0 ? 5 : slideNumber - 1)} />
-                        <div className="sliderWrapper">
-                            <img src={images[slideNumber].src} alt="slider img" className='sliderImg' />
-                        </div>
-                        <FontAwesomeIcon
-                            icon={faCircleArrowRight}
-                            className='arrow'
-                            onClick={() => setSlideNumber(slideNumber == 5 ? 0 : slideNumber + 1)}
-                        />
-                    </div>
-                }
-                <div className="hotelWrapper">
-                    <button className='bookNow'>Reserve or Book now!</button>
-                    <h1 className="hotelTitle">Grand Hotel</h1>
-                    <div className="hotelAddress">
-                        <FontAwesomeIcon icon={faLocationDot} />
-                        <span>Elton St 125 New York</span>
-                    </div>
-                    <span className="hotelDistance">
-                        Excellent location - 500m form center
-                    </span>
-                    <span className="hotelPriceHighlight">
-                        Book a stay over $114 at this property and get a free airport taxi
-                    </span>
-                    <div className="hotelImgs">
-                        {images.map((img, i) => (
-                            <div className="hotelImgsWrapper" key={i}>
-                                <img src={img.src} alt="img"
-                                    className='hotelPhoto'
-                                    onClick={() => handleOpen(i)}
+            {loading ?
+                ("Loading...") : (
+                    <div className="hotelContainer">
+                        {open &&
+                            <div className="slider">
+                                <FontAwesomeIcon
+                                    icon={faCircleXmark}
+                                    className='close'
+                                    onClick={() => setOpen(false)} />
+                                <FontAwesomeIcon
+                                    icon={faCircleArrowLeft}
+                                    className='arrow'
+                                    onClick={() => setSlideNumber(slideNumber == 0 ? 5 : slideNumber - 1)} />
+                                <div className="sliderWrapper">
+                                    <img src={hotel?.photos[slideNumber].src} alt="slider img" className='sliderImg' />
+                                </div>
+                                <FontAwesomeIcon
+                                    icon={faCircleArrowRight}
+                                    className='arrow'
+                                    onClick={() => setSlideNumber(slideNumber == 5 ? 0 : slideNumber + 1)}
                                 />
                             </div>
-                        ))}
-                    </div>
-                    <div className="hotelDetails">
-                        <div className="hotelDetailTexts">
-                            <h1 className="hotelTitle">Stay in the heart of Krakow</h1>
-                            <p className="hotelDesc">Welcome to The Grand Elegance Hotel,
-                                a luxurious 5-star destination nestled in the heart of the city.
-                                Our hotel combines modern sophistication with timeless charm,
-                                offering a tranquil retreat for both leisure and business travelers.
-                                Enjoy spacious,
-                                elegantly designed rooms with stunning city views, plush bedding,
-                                and state-of-the-art amenities,
-                                including high-speed Wi-Fi,
-                                flat-screen TVs, and mini-bars.
-                            </p>
-                        </div>
-                        <div className="hotelDetailPrice">
-                            <h1>Perfect for 9 night stay!</h1>
-                            <span>
-                                Located in the real heart of Krakow, this property has an
-                                excellent location score of 9.8!
+                        }
+                        <div className="hotelWrapper">
+                            <button className='bookNow'>Reserve or Book now!</button>
+                            <h1 className="hotelTitle">{hotel?.name}</h1>
+                            <div className="hotelAddress">
+                                <FontAwesomeIcon icon={faLocationDot} />
+                                <span>{hotel?.address}</span>
+                            </div>
+                            <span className="hotelDistance">
+                                Excellent location - {hotel?.distance}m form center
                             </span>
-                            <h2>
-                                <b>$945</b> (9 nights)
-                            </h2>
-                            <button>Reserve or Book now!</button>
+                            <span className="hotelPriceHighlight">
+                                Book a stay over ${hotel?.cheapestPrice} at this property and get a free airport taxi
+                            </span>
+                            <div className="hotelImgs">
+                                {hotel?.photos?.map((img, i) => (
+                                    <div className="hotelImgsWrapper" key={i}>
+                                        <img src={img.src} alt="img"
+                                            className='hotelPhoto'
+                                            onClick={() => handleOpen(i)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="hotelDetails">
+                                <div className="hotelDetailTexts">
+                                    <h1 className="hotelTitle">{hotel?.title}</h1>
+                                    <p className="hotelDesc">{hotel?.description}</p>
+                                </div>
+                                <div className="hotelDetailPrice">
+                                    <h1>Perfect for {days} night stay!</h1>
+                                    <span>
+                                        Located in the real heart of Krakow, this property has an
+                                        excellent location score of 9.8!
+                                    </span>
+                                    <h2>
+                                        <b>${days * hotel?.cheapestPrice * options.rooms}</b> ({days} nights)
+                                    </h2>
+                                    <button>Reserve or Book now!</button>
+                                </div>
+                            </div>
                         </div>
+                        <MailList />
+                        <Footer />
                     </div>
-                </div>
-                <MailList />
-                <Footer />
-            </div>
+                )}
         </div>
     )
 }

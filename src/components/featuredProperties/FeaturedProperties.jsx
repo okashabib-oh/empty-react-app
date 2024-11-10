@@ -1,49 +1,34 @@
 import React from 'react'
 import './featuredproperties.css'
+import useFetch from '../../hooks/useFetch'
 
 const FeaturedProperties = () => {
+    const { data, error, loading } = useFetch("http://localhost:8008/api/hotels?featured=true")
+    const { hotels } = data
+    console.log(hotels);
+
     return (
         <div className='fp'>
-            <div className="fpItem">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYS0l5IfXtwUw8mf8FRDttRAILHXmoEmQr3Q&s" alt="" className="fpImg" />
-                <span className="fpName">Apart Hotel Stare Miasto</span>
-                <span className="fpCity">Madrid</span>
-                <span className="fpPrice">Starting from $120</span>
-                <div className="fpRating">
-                    <button>8.9</button>
-                    <span>Excellent</span>
-                </div>
-            </div>
-            <div className="fpItem">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYS0l5IfXtwUw8mf8FRDttRAILHXmoEmQr3Q&s" alt="" className="fpImg" />
-                <span className="fpName">Apart Hotel Stare Miasto</span>
-                <span className="fpCity">Madrid</span>
-                <span className="fpPrice">Starting from $120</span>
-                <div className="fpRating">
-                    <button>8.9</button>
-                    <span>Excellent</span>
-                </div>
-            </div>
-            <div className="fpItem">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYS0l5IfXtwUw8mf8FRDttRAILHXmoEmQr3Q&s" alt="" className="fpImg" />
-                <span className="fpName">Apart Hotel Stare Miasto</span>
-                <span className="fpCity">Madrid</span>
-                <span className="fpPrice">Starting from $120</span>
-                <div className="fpRating">
-                    <button>8.9</button>
-                    <span>Excellent</span>
-                </div>
-            </div>
-            <div className="fpItem">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYS0l5IfXtwUw8mf8FRDttRAILHXmoEmQr3Q&s" alt="" className="fpImg" />
-                <span className="fpName">Apart Hotel Stare Miasto</span>
-                <span className="fpCity">Madrid</span>
-                <span className="fpPrice">Starting from $120</span>
-                <div className="fpRating">
-                    <button>8.9</button>
-                    <span>Excellent</span>
-                </div>
-            </div>
+            {loading ? (
+                "Loading..."
+            ) : (
+                <>
+                    {hotels?.map((items) => (
+                        <div className="fpItem" key={items._id}>
+                            <img src={items.photos[0]} alt={items.name} className="fpImg" />
+                            <span className="fpName">{items.name}</span>
+                            <span className="fpCity">{items.city}</span>
+                            <span className="fpPrice">Starting from ${items.cheapestPrice}</span>
+                            {items.rating &&
+                                <div className="fpRating">
+                                    <button>{items.rating}</button>
+                                    <span>Excellent</span>
+                                </div>
+                            }
+                        </div>
+                    ))}
+                </>
+            )}
         </div>
     )
 }

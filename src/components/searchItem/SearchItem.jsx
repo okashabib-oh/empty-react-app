@@ -1,18 +1,19 @@
 import React from 'react'
 import './searchItem.css'
+import { Link } from 'react-router-dom'
 
-const SearchItem = () => {
+const SearchItem = ({ item }) => {
     return (
         <div className='searchItem'>
-            <img src="https://cf.bstatic.com/xdata/images/city/max500/685453.webp?k=7a470ff43b0210aa5f418ece0e04324c742a1a0ea4e6744ce093ed94bdc5581b&o="
+            <img src={item.photo}
                 alt=""
                 className='siImg'
             />
             <div className="siDesc">
                 <h1 className="siTitle">
-                    Tower Street Apartments
+                    {item.name}
                 </h1>
-                <span className="siDistance">500m from center</span>
+                <span className="siDistance">{item.distance}</span>
                 <span className="siTaxtOp">Free airport taxi</span>
                 <span className="siSubTitle">Studio Apartment with Air conditioning</span>
                 <span className="siFeatures">
@@ -24,14 +25,16 @@ const SearchItem = () => {
                 </span>
             </div>
             <div className="siDetails">
-                <div className="siRating">
+                {item.rating && <div className="siRating">
                     <span>Excellent</span>
-                    <button>8.9</button>
-                </div>
+                    <button>{item.rating}</button>
+                </div>}
                 <div className="siDetailTexts">
-                    <span className="siPrice">$123</span>
+                    <span className="siPrice">${item.cheapestPrice}</span>
                     <span className="siTaxOp">Includes taxes and fees</span>
-                    <button className="siCheckButton">See availability</button>
+                    <Link to={`/hotels/${item._id}`}>
+                        <button className="siCheckButton">See availability</button>
+                    </Link>
                 </div>
             </div>
         </div>
